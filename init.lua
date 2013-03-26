@@ -1,5 +1,15 @@
 irc_users = {}
 
+local old_chat_send_player = minetest.chat_send_player
+minetest.chat_send_player = function(name, message)
+	for nick, user in pairs(irc_users) do
+		if name == user then
+			mt_irc.say(nick, message)
+		end
+	end
+	return old_chat_send_player(name, message)
+end
+
 mt_irc.register_bot_command("login", {
 	params = "<username> <password>",
 	description = "Login as a user to run commands",
