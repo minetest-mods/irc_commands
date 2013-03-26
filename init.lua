@@ -50,7 +50,12 @@ mt_irc.register_bot_command("command", {
 			return
 		end
 		if minetest.check_player_privs(irc_users[from], command.privs) then
+		    local send = minetest.chat_send_player
+		    minetest.chat_send_player = function(name, message)
+		        mt_irc.say(name, message)
+		    end
 			command.func(irc_users[from], (params or ""))
+			minetest.chat_send_player = send
 			mt_irc.say(from, "Command run successfuly")
 		end
 end})
