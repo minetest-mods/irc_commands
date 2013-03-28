@@ -38,7 +38,7 @@ mt_irc.register_bot_command("logout", {
 		mt_irc.say(from, "You are now logged off")
 end})
 
-mt_irc.register_bot_command("command", {
+mt_irc.register_bot_command("cmd", {
 	params = "<command>",
 	description = "Run a command on the server";
 	func = function (from, args)
