@@ -21,12 +21,15 @@ mt_irc.register_bot_command("login", {
 		local found, _, username, password = args:find("^([^%s]+)%s([^%s]+)$")
 		if not found then
 			username = args
+			password = ""
 		end
 		if minetest.auth_table[username] and
-		   minetest.auth_table[username].password == minetest.get_password_hash(username, (password or "")) then
+		   minetest.auth_table[username].password == minetest.get_password_hash(username, password) then
+			minetest.debug("User "..from.." from IRC logs in as "..username)
 			irc_users[from] = username
 			mt_irc.say(from, "You are now logged in as "..username)
 		else
+			minetest.debug("User "..from.." from IRC attempted log in as "..username.." unsuccessfully")
 			mt_irc.say(from, "Incorrect password or player does not exist")
 		end
 end})
@@ -35,6 +38,7 @@ mt_irc.register_bot_command("logout", {
 	description = "Logout",
 	func = function (from, args)
 		if irc_users[from] then
+			minetest.debug("User "..from.." from IRC logs out of "..irc_users[from])
 			irc_users[from] = nil
 			mt_irc.say(from, "You are now logged off")
 		else
@@ -64,6 +68,7 @@ mt_irc.register_bot_command("cmd", {
 			return
 		end
 		if minetest.check_player_privs(irc_users[from], command.privs) then
+			minetest.debug("User "..from.." from IRC runs "..args.." as "..irc_users[from])
 			command.func(irc_users[from], (params or ""))
 			mt_irc.say(from, "Command run successfuly")
 		end
@@ -82,6 +87,7 @@ mt_irc.register_bot_command("say", {
 			return
 		end
 		if minetest.check_player_privs(irc_users[from], {shout=true}) then
+			minetest.debug("User "..from.." from IRC says "..args.." as "..irc_users[from])
 			minetest.chat_send_all("<"..irc_users[from].."@IRC> "..args)
 			mt_irc.say(from, "Message sent successfuly")
 		end
