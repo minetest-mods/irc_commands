@@ -14,7 +14,7 @@ mt_irc.register_bot_command("login", {
 	params = "<username> <password>",
 	description = "Login as a user to run commands",
 	func = function (from, args)
-		if (args == "") then
+		if args == "" then
 			mt_irc.say(from, "You need a username and password")
 			return
 		end
@@ -44,7 +44,7 @@ end})
 
 mt_irc.register_bot_command("cmd", {
 	params = "<command>",
-	description = "Run a command on the server";
+	description = "Run a command on the server",
 	func = function (from, args)
 		if args == "" then
 			mt_irc.say(from, "You need a command")
