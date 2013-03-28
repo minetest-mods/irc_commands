@@ -34,8 +34,12 @@ end})
 mt_irc.register_bot_command("logout", {
 	description = "Logout",
 	func = function (from, args)
-		irc_users[from] = nil
-		mt_irc.say(from, "You are now logged off")
+		if irc_users[from] then
+			irc_users[from] = nil
+			mt_irc.say(from, "You are now logged off")
+		else
+			mt_irc.say(from, "You are not logged in")
+		end
 end})
 
 mt_irc.register_bot_command("cmd", {
