@@ -64,3 +64,21 @@ mt_irc.register_bot_command("cmd", {
 			mt_irc.say(from, "Command run successfuly")
 		end
 end})
+
+mt_irc.register_bot_command("say", {
+	params = "message",
+	description = "Say something",
+	func = function (from, args)
+		if args == "" then
+			mt_irc.say(from, "You need a message")
+			return
+		end
+		if not irc_users[from] then
+			mt_irc.say(from, "You are not loged in")
+			return
+		end
+		if minetest.check_player_privs(irc_users[from], {shout=true}) then
+			minetest.chat_send_all("<"..irc_users[from].."@IRC> "..args)
+			mt_irc.say(from, "Message sent successfuly")
+		end
+end})
