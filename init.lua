@@ -10,6 +10,21 @@ minetest.chat_send_player = function(name, message)
 	return old_chat_send_player(name, message)
 end
 
+mt_irc.register_callback("nick_change", function (old_nick, new_nick)
+	for nick, user in pairs(irc_users) do
+		if nick == old_nick then
+			irc_users[new_nick] = irc_users[old_nick]
+			irc_users[old_nick] = nil
+		end
+	end
+end)
+
+mt_irc.register_callback("part", function (nick, part_msg)
+	if irc_users[nick] then
+		irc_users[nick] = nil
+	end
+end)
+
 mt_irc.register_bot_command("login", {
 	params = "<username> <password>",
 	description = "Login as a user to run commands",
