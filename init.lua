@@ -7,8 +7,8 @@ end
 
 local old_chat_send_player = minetest.chat_send_player
 minetest.chat_send_player = function(name, message)
-	for nick, logedInAs in pairs(irc_users) do
-		if name == logedInAs and not minetest.get_player_by_name(name) then
+	for nick, loggedInAs in pairs(irc_users) do
+		if name == loggedInAs and not minetest.get_player_by_name(name) then
 			notify(nick, message)
 		end
 	end
@@ -77,7 +77,7 @@ mt_irc:register_bot_command("cmd", {
 			return
 		end
 		if not irc_users[user.nick] then
-			notify(user.nick, "You are not loged in")
+			notify(user.nick, "You are not logged in")
 			return
 		end
 		local found, _, commandname, params = args:find("^([^%s]+)%s(.+)$")
@@ -105,7 +105,7 @@ mt_irc:register_bot_command("say", {
 			return
 		end
 		if not irc_users[user.nick] then
-			notify(user.nick, "You are not loged in")
+			notify(user.nick, "You are not logged in")
 			return
 		end
 		if minetest.check_player_privs(irc_users[user.nick], {shout=true}) then
