@@ -86,11 +86,13 @@ mt_irc:register_bot_command("cmd", {
 			mt_irc:reply("Not a valid command")
 			return
 		end
-		if minetest.check_player_privs(irc_users[user.nick], command.privs) then
-			minetest.log("action", user.nick.."@IRC runs "
-				..args.." as "..irc_users[user.nick])
-			command.func(irc_users[user.nick], (params or ""))
+		if not minetest.check_player_privs(irc_users[user.nick], command.privs) then
+			mt_irc:reply("Your privileges are insufficient")
+			return
 		end
+		minetest.log("action", user.nick.."@IRC runs "
+			..args.." as "..irc_users[user.nick])
+		command.func(irc_users[user.nick], (params or ""))
 end})
 
 mt_irc:register_bot_command("say", {
