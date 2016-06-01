@@ -44,8 +44,12 @@ irc:register_bot_command("login", {
 			return false, "Player name and password required."
 		end
 		local inChannel = false
-		local users = irc.conn.channels[irc.config.channel].users
-		for cnick, cuser in pairs(users) do
+		local channel = irc.conn.channels[irc.config.channel]
+		if not channel then
+			return false, "The server needs to be in its "..
+				"channel for anyone to log in."
+		end
+		for cnick, cuser in pairs(channel.users) do
 			if user.nick == cnick then
 				inChannel = true
 				break
