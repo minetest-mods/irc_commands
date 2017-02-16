@@ -2,7 +2,7 @@
 local irc_users = {}
 
 local old_chat_send_player = minetest.chat_send_player
-minetest.chat_send_player = function(name, message)
+minetest.chat_send_player = function(name, message) -- luacheck: ignore
 	for nick, loggedInAs in pairs(irc_users) do
 		if name == loggedInAs and not minetest.get_player_by_name(name) then
 			irc:say(nick, message)
