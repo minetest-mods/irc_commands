@@ -39,7 +39,7 @@ irc:register_bot_command("login", {
 		if args == "" then
 			return false, "You need a username and password."
 		end
-		local playerName, password = args:match("^(%S+)%s(%S+)$")
+		local playerName, password = args:match("^(%S+)%s(.+)$")
 		if not playerName then
 			return false, "Player name and password required."
 		end
