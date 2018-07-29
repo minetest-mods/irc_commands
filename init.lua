@@ -138,3 +138,81 @@ irc:register_bot_command("say", {
 	end
 })
 
+
+local storage = minetest.get_mod_storage()
+
+local function check_host_login(user)
+	if type(user) ~= "table" then
+		local whois = irc.conn:whois(user)
+		user = {
+			nick = user,
+			host = whois.userinfo[4]
+		}
+	end
+
+	local store = minetest.parse_json(storage:get_string("host_logins")) or {}
+	if user.host and store[user.host] then
+		local playerName = store[user.host]
+		local handler = minetest.get_auth_handler()
+
+		minetest.log("action", "User " .. user.nick ..
+				" from IRC logs in as " .. playerName)
+
+		irc_users[user.nick] = playerName
+
+		handler.record_login(playerName)
+	end
+end
+
+irc:register_hook("OnJoin", function(user, channel)
+	if irc.config.nick == user.nick then
+		minetest.after(1, function()
+			for nick in pairs(irc.conn.channels[irc.config.channel].users) do
+				check_host_login(nick)
+			end
+		end)
+	else
+		check_host_login(user)
+	end
+end)
+
+minetest.register_chatcommand("irc_host", {
+	privs = { password = true },
+	func  = function(name, param)
+		local pname, host = string.match(param, "^add ([%a%d_-]+) (.+)$")
+		pname = pname or string.match(param, "^remove (.+)$")
+		if not pname then
+			return false, "Usage: add NAME HOST\nor  remove NAME  or  remove HOST"
+		end
+
+		local msg
+
+		local store = minetest.parse_json(storage:get_string("host_logins")) or {}
+		if host then
+			store[host] = pname
+			msg = "Add host for " .. pname .. ": '" .. host .. "'"
+		else
+			local removed = false
+			if store[pname] then
+				store[pname] = nil
+				removed = true
+			end
+
+			for key, val in pairs(store) do
+				if val == pname then
+					store[key] = nil
+					removed = true
+				end
+			end
+
+			if removed then
+				msg = "Removed host mapping matching " .. pname
+			else
+				msg = "Unable to find host mapping matching " .. pname
+			end
+		end
+		storage:set_string("host_logins", minetest.write_json(store))
+
+		return true, msg
+	end
+})
