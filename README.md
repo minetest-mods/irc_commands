@@ -2,7 +2,7 @@
 
 [![ContentDB](https://content.luanti.org/packages/ShadowNinja/irc_commands/shields/downloads/)](https://content.luanti.org/packages/ShadowNinja/irc_commands/)
 
-A mod for Luanti/Minetest that allows you to control a server over IRC.
+A mod for Luanti/Minetest that allows you to control a server over IRC. Licensed under [WTFPL](https://www.wtfpl.net/txt/copying/)/[CC0](LICENSE.md).
 
 ## Dependencies
 
