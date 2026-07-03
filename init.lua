@@ -1,10 +1,10 @@
 
 local irc_users = {}
 
-local old_chat_send_player = minetest.chat_send_player
-minetest.chat_send_player = function(name, message) -- luacheck: ignore
+local old_chat_send_player = core.chat_send_player
+core.chat_send_player = function(name, message) -- luacheck: ignore
 	for nick, loggedInAs in pairs(irc_users) do
-		if name == loggedInAs and not minetest.get_player_by_name(name) then
+		if name == loggedInAs and not core.get_player_by_name(name) then
 			irc:say(nick, message)
 		end
 	end
@@ -58,16 +58,16 @@ irc.register_bot_command("login", {
 		if not inChannel then
 			return false, "You need to be in the server's channel to log in."
 		end
-		local handler = minetest.get_auth_handler()
+		local handler = core.get_auth_handler()
 		local auth = handler.get_auth(playerName)
-		if auth and minetest.check_password_entry(playerName, auth.password, password) then
-			minetest.log("action", "User "..user.nick
+		if auth and core.check_password_entry(playerName, auth.password, password) then
+			core.log("action", "User "..user.nick
 					.." from IRC logs in as "..playerName)
 			irc_users[user.nick] = playerName
 			handler.record_login(playerName)
 			return true, "You are now logged in as "..playerName
 		else
-			minetest.log("action", user.nick.."@IRC attempted to log in as "
+			core.log("action", user.nick.."@IRC attempted to log in as "
 				..playerName.." unsuccessfully")
 			return false, "Incorrect password or player does not exist."
 		end
@@ -76,9 +76,9 @@ irc.register_bot_command("login", {
 
 irc.register_bot_command("logout", {
 	description = "Logout",
-	func = function (user, args)
+	func = function (user, _)
 		if irc_users[user.nick] then
-			minetest.log("action", user.nick.."@IRC logs out from "
+			core.log("action", user.nick.."@IRC logs out from "
 				..irc_users[user.nick])
 			irc_users[user.nick] = nil
 			return true, "You are now logged off."
@@ -102,14 +102,14 @@ irc.register_bot_command("cmd", {
 		if not found then
 			commandname = args
 		end
-		local command = minetest.chatcommands[commandname]
+		local command = core.chatcommands[commandname]
 		if not command then
 			return false, "Not a valid command."
 		end
-		if not minetest.check_player_privs(irc_users[user.nick], command.privs) then
+		if not core.check_player_privs(irc_users[user.nick], command.privs) then
 			return false, "Your privileges are insufficient."
 		end
-		minetest.log("action", user.nick.."@IRC runs "
+		core.log("action", user.nick.."@IRC runs "
 			..args.." as "..irc_users[user.nick])
 		return command.func(irc_users[user.nick], (params or ""))
 	end
@@ -125,15 +125,15 @@ irc.register_bot_command("say", {
 		if not irc_users[user.nick] then
 			return false, "You are not logged in."
 		end
-		if not minetest.check_player_privs(irc_users[user.nick], {shout=true}) then
-			minetest.log("action", ("%s@IRC tried to say %q as %s"
+		if not core.check_player_privs(irc_users[user.nick], {shout=true}) then
+			core.log("action", ("%s@IRC tried to say %q as %s"
 				.." without the shout privilege.")
 					:format(user.nick, args, irc_users[user.nick]))
 			return false, "You can not shout."
 		end
-		minetest.log("action", ("%s@IRC says %q as %s.")
+		core.log("action", ("%s@IRC says %q as %s.")
 				:format(user.nick, args, irc_users[user.nick]))
-		minetest.chat_send_all("<"..irc_users[user.nick].."@IRC> "..args)
+		core.chat_send_all("<"..irc_users[user.nick].."@IRC> "..args)
 		return true, "Message sent successfuly."
 	end
 })
